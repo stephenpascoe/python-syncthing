@@ -8,10 +8,15 @@ from . import BaseAPI
 class Events(BaseAPI):
     prefix = '/rest/'
 
-    def __init__(self, *args, **kwargs):
-        super(Events).__init__(self, *args, **kwargs)
+    def __init__(self, last_seen_id=0, *args, **kwargs):
+        # If timeout is provided, use that.  Otherwise the provided value will be used for the
+        # long-poll timeout
+        if 'timeout' not in kwargs:
+            kwargs['timeout'] = None
 
-        self._last_seen_id = 0
+        super().__init__(*args, **kwargs)
+
+        self._last_seen_id = last_seen_id
 
     def poll(self, limit=None):
         """
@@ -35,7 +40,10 @@ class Events(BaseAPI):
         return data
 
     def generate(self):
-        # TODO : Consider timeout parameter?
+        """
+        Return a generator of events since
+        :return:
+        """
         while True:
             for event in self.poll():
                 yield event
